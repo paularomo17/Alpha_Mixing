@@ -449,9 +449,9 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     writer = SummaryWriter(log_dir=sub_path)
 
     result_file = open(sub_path + '.csv', 'w')
-    preds_file = open(sub_path + '.csv', 'w')
-    preds_file2 = open(sub_path + '.csv', 'w')
-    preds_file3 = open(sub_path + '.csv', 'w')
+    preds_file = open(sub_path + '1.csv', 'w')
+    preds_file2 = open(sub_path + '2.csv', 'w')
+    preds_file3 = open(sub_path + '3.csv', 'w')
 
     result_writer = csv.writer(result_file, quoting=csv.QUOTE_ALL)
     preds_writer = csv.writer(preds_file, quoting=csv.QUOTE_ALL)
