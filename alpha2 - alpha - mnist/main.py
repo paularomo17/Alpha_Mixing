@@ -25,6 +25,7 @@ from models.cdal_model import CDALModel
 import matplotlib
 import matplotlib.colors as mcolors
 
+import tensorflow as tf
 
 font_size = 25
 font = {'family' : 'serif',
@@ -448,9 +449,14 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     writer = SummaryWriter(log_dir=sub_path)
 
     result_file = open(sub_path + '.csv', 'w')
-    preds_file = open(sub_path + '.csv', 'w')
+    preds_file = open(sub_path + '1.csv', 'w')
+    preds_file2 = open(sub_path + '2.csv', 'w')
+    preds_file3 = open(sub_path + '3.csv', 'w')
+
     result_writer = csv.writer(result_file, quoting=csv.QUOTE_ALL)
     preds_writer = csv.writer(preds_file, quoting=csv.QUOTE_ALL)
+    preds_writer2 = csv.writer(preds_file2, quoting=csv.QUOTE_ALL)
+    preds_writer3 = csv.writer(preds_file3, quoting=csv.QUOTE_ALL)
 
     # set seed
     set_seeds(seed)
@@ -587,8 +593,14 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     result_writer.writerow([acc[0], 0.])
     result_file.flush()
 
-    preds_writer.writerow(P[0])
+    preds_writer.writerow([P[0]])
     preds_file.flush()
+
+    preds_writer2.writerow([tf.compat.as_str_any(P[0])])
+    preds_file2.flush()
+
+    preds_writer3.writerow([tf.strings.as_string(P[0])])
+    preds_file3.flush()
 
     for rd in range(1, args.n_round + 1):
         print('Round {}'.format(rd))
@@ -644,8 +656,14 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
         result_writer.writerow([acc[rd], duration])
         result_file.flush()
 
-        preds_writer.writerow(P)
+        preds_writer.writerow([P[0]])
         preds_file.flush()
+
+        preds_writer2.writerow([tf.compat.as_str_any(P[0])])
+        preds_file2.flush()
+
+        preds_writer3.writerow([tf.strings.as_string(P[0])])
+        preds_file3.flush()
 
     # print results
     print('SEED {}'.format(seed))
@@ -655,6 +673,8 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     writer.close()
     result_file.close()
     preds_file.close()
+    preds_file2.close()
+    preds_file3.close()
 
     if args.print_to_file:
         sys.stdout = orig_stdout
@@ -686,14 +706,14 @@ def get_query_diversity_uncertainty(embeddings, gt_y, p_y, probs, writer, rd):
     writer.add_scalar('selection_statistics/margin', margin, rd)
 
     from scipy.stats import entropy
-    p = np.zeros(probs.size(1), dtype=np.float)
+    p = np.zeros(probs.size(1), dtype=float)
     for i in range(probs.size(1)):
         p[i] = (p_y == i).sum().item() / p_y.size(0)
     ent = entropy(p)
     print('Predicted Entropy: %f' % ent)
     writer.add_scalar('selection_statistics/predicted_entropy', ent, rd)
 
-    p = np.zeros(probs.size(1), dtype=np.float)
+    p = np.zeros(probs.size(1), dtype=float)
     for i in range(probs.size(1)):
         p[i] = (gt_y == i).sum().item() / p_y.size(0)
     ent = entropy(p)
@@ -702,7 +722,7 @@ def get_query_diversity_uncertainty(embeddings, gt_y, p_y, probs, writer, rd):
 
     c = idxs[:, 0:2].min(dim=1)[0] * 1000 + idxs[:, 0:2].max(dim=1)[0]
     n = int(probs.size(1) * (probs.size(1) - 1) / 2)
-    p = np.zeros(n, dtype=np.float)
+    p = np.zeros(n, dtype=float)
     idx = 0
     for i in range(probs.size(1) - 1):
         for j in range(i + 1, probs.size(1)):
