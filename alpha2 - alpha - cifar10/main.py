@@ -51,7 +51,7 @@ def supervised_learning(args):
     train_parser = argparse.ArgumentParser(description="Training parser for training hyper-parrameters at ech checkpoint.")
 
     train_parser.add_argument('--data_augmentation', action='store_const', default=False, const=True)
-    train_parser.add_argument('--n_epoch', type=int, default=200)
+    train_parser.add_argument('--n_epoch', type=int, default=100)
     train_parser.add_argument('--n_early_stopping', type=int, default=200)
     train_parser.add_argument('--optimizer', type=str, default='Adam')
     train_parser.add_argument('--batch_size', type=int, default=64)
@@ -449,14 +449,10 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     writer = SummaryWriter(log_dir=sub_path)
 
     result_file = open(sub_path + '.csv', 'w')
-    preds_file = open(sub_path + '1.csv', 'w')
-    preds_file2 = open(sub_path + '2.csv', 'w')
-    preds_file3 = open(sub_path + '3.csv', 'w')
+    preds_file = open(sub_path + '_preds.csv', 'a')
 
     result_writer = csv.writer(result_file, quoting=csv.QUOTE_ALL)
     preds_writer = csv.writer(preds_file, quoting=csv.QUOTE_ALL)
-    preds_writer2 = csv.writer(preds_file2, quoting=csv.QUOTE_ALL)
-    preds_writer3 = csv.writer(preds_file3, quoting=csv.QUOTE_ALL)
 
     # set seed
     set_seeds(seed)
@@ -590,17 +586,31 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     writer.add_scalar('test_accuracy', acc[0], 0)
     #writer.add_scalar('duration', duration)
 
-    result_writer.writerow([acc[0], 0.])
+    result_writer.writerow([no_of_queries, acc[0], 0.])
     result_file.flush()
 
-    preds_writer.writerow([P[0]])
-    preds_file.flush()
+    # with open(sub_path + '.csv', 'a') as data_csv:
+    #     datawriter = writer(data_csv)
+    #     datawriter.writerow([P[0]])
+    #     data_csv.close()
 
-    preds_writer2.writerow([tf.compat.as_str_any(P[0])])
-    preds_file2.flush()
+    # for i in range(P.numpy().size):
+    #     preds_writer.writerow([P.numpy()[i], Y_te.numpy()[i]])
+    # preds_file.flush()
 
-    preds_writer3.writerow([tf.strings.as_string(P[0])])
-    preds_file3.flush()
+    # with open(sub_path + '1.csv', 'a') as data_csv:
+    #     datawriter = writer(data_csv)
+    #     datawriter.writerow([tf.compat.as_str_any(P[0])])
+    #     data_csv.close()
+    #preds_writer2.writerow([tf.compat.as_str_any(P[0])])
+    #preds_file2.flush()
+
+    # with open(sub_path + '2.csv', 'a') as data_csv:
+    #     datawriter = writer(data_csv)
+    #     datawriter.writerow([tf.strings.as_string(P[0])])
+    #     data_csv.close()
+    #preds_writer3.writerow([tf.strings.as_string(P[0])])
+    #preds_file3.flush()
 
     for rd in range(1, args.n_round + 1):
         print('Round {}'.format(rd))
@@ -653,17 +663,21 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
         writer.add_scalar('no_of_queries', no_of_queries)
         writer.add_scalar('test_accuracy', acc[rd], rd)
         writer.add_scalar('duration', duration)
-        result_writer.writerow([acc[rd], duration])
+        result_writer.writerow([no_of_queries, acc[rd], duration])
         result_file.flush()
 
-        preds_writer.writerow([P[0]])
+        # preds_writer.writerow([P[0]])
+        # preds_file.flush()
+
+        for i in range(P.numpy().size):
+            preds_writer.writerow([P.numpy()[i], Y_te.numpy()[i]])
         preds_file.flush()
 
-        preds_writer2.writerow([tf.compat.as_str_any(P[0])])
-        preds_file2.flush()
+        # preds_writer2.writerow([tf.compat.as_str_any(P[0])])
+        # preds_file2.flush()
 
-        preds_writer3.writerow([tf.strings.as_string(P[0])])
-        preds_file3.flush()
+        # preds_writer3.writerow([tf.strings.as_string(P[0])])
+        # preds_file3.flush()
 
     # print results
     print('SEED {}'.format(seed))
@@ -816,21 +830,4 @@ if __name__ == "__main__":
     args, _ = parser.parse_known_args()
 
     supervised_learning(args)
-
-    # supervised_learning("MNIST", "C:\Users\Adi\Desktop\ML Project\alpha_mix_active_learning-main\data",
-    #                     "C:\Users\Adi\Desktop\ML Project\alpha_mix_active_learning-main\log")
-    #
-    # --data_name
-    # MNIST - -data_dir
-    # C:\Users\Adi\Desktop\ML
-    # Project\alpha_mix_active_learning - main\data - -log_dir
-    # C:\Users\Adi\Desktop\ML
-    # Project\alpha_mix_active_learning - main\log - -n_init_lb
-    # 100 - -n_query
-    # 100 - -n_round
-    # 10 - -learning_rate
-    # 0.001 - -n_epoch
-    # 1000 - -model
-    # mlp - -strategy
-    # AlphaMixSampling - -alpha_opt
 
