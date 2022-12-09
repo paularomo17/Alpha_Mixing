@@ -788,7 +788,7 @@ if __name__ == "__main__":
     parser.add_argument('--query_growth_ratio', type=int, default=1)
     parser.add_argument('--n_round', type=int, default=15)
 
-    parser.add_argument('--strategy', type=str, default='BALDDropout',
+    parser.add_argument('--strategy', type=str, default='CDALSampling',
                         choices=['RandomSampling', 'EntropySampling',
                                  'BALDDropout', 'CoreSet',
                                  'AdversarialDeepFool',
