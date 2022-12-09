@@ -687,8 +687,6 @@ def al_train_sub_experiment(args, train_args, train_params, strategy_name, gener
     writer.close()
     result_file.close()
     preds_file.close()
-    preds_file2.close()
-    preds_file3.close()
 
     if args.print_to_file:
         sys.stdout = orig_stdout
